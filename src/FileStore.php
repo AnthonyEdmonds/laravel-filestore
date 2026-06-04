@@ -21,11 +21,11 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
     // Setup
     final public function __construct(
         Model $model,
-        array $existingFiles = []
+        array $existingFiles = [],
     ) {
         $this->model = $model;
 
-        $this->model::saved(function ()  {
+        $this->model::saved(function () {
             // TODO Keep reserve ID approach to avoid multiple calls to save?
             $this->save();
         });
