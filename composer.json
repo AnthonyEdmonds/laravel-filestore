@@ -1,0 +1,42 @@
+{
+    "name" : "anthonyedmonds/laravel-filestore",
+    "description" : "Manage adding and removing files on your Model, only persisting the changes on save!",
+    "keywords": ["laravel", "file", "store", "draft", "temp"],
+    "type" : "library",
+    "license" : "MIT",
+    "autoload" : {
+        "psr-4" : {
+            "AnthonyEdmonds\\LaravelFileStore\\" : "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AnthonyEdmonds\\LaravelFileStore\\Tests\\": "tests/"
+        }
+    },
+    "authors" : [
+        {
+            "name" : "Anthony Edmonds",
+            "email" : "contact@anthonyedmonds.me",
+            "homepage": "https://github.com/AnthonyEdmonds/laravel-filestore",
+            "role": "Developer"
+        }
+    ],
+    "minimum-stability" : "dev",
+    "prefer-stable" : true,
+    "require" : {
+        "php": "^8.3",
+        "illuminate/support": "^13"
+    },
+    "require-dev" : {
+        "brianium/paratest": "^7",
+        "larastan/larastan": "^3",
+        "laravel/pint": "^1",
+        "networkrailbusinesssystems/badges": "^1",
+        "orchestra/testbench": "^11",
+        "phpunit/phpunit": "^12"
+    },
+    "config" : {
+        "sort-packages" : true
+    }
+}

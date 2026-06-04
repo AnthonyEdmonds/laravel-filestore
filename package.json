@@ -1,0 +1,24 @@
+{
+    "name": "laravel-filestore",
+    "description": "Manage adding and removing files on your Model, only persisting the changes on save!",
+    "keywords": [
+        "laravel",
+        "file",
+        "store",
+        "draft",
+        "temp"
+    ],
+    "author": "Anthony Edmonds",
+    "license": "MIT",
+    "homepage": "https://github.com/AnthonyEdmonds/laravel-filestore",
+    "scripts": {
+        "badges": "php vendor/networkrailbusinesssystems/badges/badges.php",
+        "larastan": "php vendor/bin/phpstan analyse --memory-limit 512M",
+        "pint": "php ./vendor/bin/pint --preset=per",
+        "test": "php vendor/bin/paratest",
+        "test-slow": "php vendor/bin/phpunit"
+    },
+    "devDependencies": {
+        "husky": "^8"
+    }
+}
