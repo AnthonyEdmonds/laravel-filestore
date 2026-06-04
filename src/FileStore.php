@@ -64,6 +64,8 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
             throw new InvalidFileStore("The FileStore contained in \"$key\" could not be parsed as JSON");
         }
 
+        // TODO Wrong, has to get here to be made
+        // TODO Switch to Castable format
         return new static(
             $model,
             json_decode($value, true),
