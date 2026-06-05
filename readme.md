@@ -94,6 +94,10 @@ composer require anthonyedmonds/laravel-filestore
    }
    ```
 
+## Roadmap
+
+* Self-healing filestore
+
 ## Help and support
 
 You are welcome to raise any issues or questions on GitHub.

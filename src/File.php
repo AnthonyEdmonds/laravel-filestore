@@ -11,6 +11,7 @@ class File implements Arrayable
 {
     // Setup
     public function __construct(
+        public FileStore $fileStore,
         public string $hash,
         public string $name,
         public string $size,
@@ -23,16 +24,26 @@ class File implements Arrayable
     public static function create(FileStore $fileStore, UploadedFile $upload): File
     {
         $file = new File(
+            $fileStore,
             $upload->hashName(),
             $upload->getClientOriginalName(),
-            round($upload->getSize() / 1024, 2) . 'MB',
+            File::size($upload->getSize()),
             false,
             false,
         );
 
-        $fileStore->tempDisk()->put($file->hash, $upload);
+        $file->fileStore->tempDisk()->put('/', $upload);
 
         return $file;
+    }
+
+    public static function size(int $size): string
+    {
+        return match (true) {
+            $size > 99999 => round($size / 1000 / 1000, 2) . ' mB',
+            $size > 9999 => round($size / 1000, 2) . ' kB',
+            default => $size . ' B',
+        };
     }
 
     // Arrayable
@@ -47,14 +58,18 @@ class File implements Arrayable
         ];
     }
 
-    // Utilities
-    public function download(FileStore $fileStore): StreamedResponse
+    // Actions
+    public function download(): StreamedResponse
     {
         return $this->stored === true
-            ? $fileStore->storeDisk()->download(
-                $this->path($fileStore),
+            ? $this->fileStore->storeDisk()->download(
+                $this->path(),
+                $this->name,
             )
-            : $fileStore->tempDisk()->download("$this->hash");
+            : $this->fileStore->tempDisk()->download(
+                $this->hash,
+                $this->name,
+            );
     }
 
     public function markForRemoval(): File
@@ -63,16 +78,16 @@ class File implements Arrayable
         return $this;
     }
 
-    public function path(FileStore $fileStore): string
+    public function path(): string
     {
-        $id = $fileStore->model->getKey();
-        return "$id/$this->hash";
+        $key = $this->fileStore->model->getKey();
+        return "$key/$this->hash";
     }
 
-    public function remove(FileStore $fileStore): File
+    public function remove(): File
     {
-        $fileStore->storeDisk()->delete(
-            $this->path($fileStore),
+        $this->fileStore->storeDisk()->delete(
+            $this->path(),
         );
 
         $this->stored = false;
@@ -80,13 +95,18 @@ class File implements Arrayable
         return $this;
     }
 
-    public function store(FileStore $fileStore): File
+    public function store(): File
     {
+        $key = $this->fileStore->model->getKey();
+
+        if ($this->fileStore->storeDisk()->exists($key) === false) {
+            $this->fileStore->storeDisk()->makeDirectory($key);
+        }
+
+        $path = $this->path();
         LaravelFile::move(
-            $fileStore->tempDisk()->path($this->hash),
-            $fileStore->storeDisk()->path(
-                $this->path($fileStore),
-            ),
+            $this->fileStore->tempDisk()->path($this->hash),
+            $this->fileStore->storeDisk()->path($path),
         );
 
         $this->stored = true;

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property MyFileStore $files
+ * @property int $id
  */
 class MyModel extends Model
 {

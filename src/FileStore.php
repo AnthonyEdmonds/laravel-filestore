@@ -19,10 +19,10 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
     public Model $model;
 
     // Setup
-    final public function __construct(
+    public function setup(
         Model $model,
         array $existingFiles = [],
-    ) {
+    ): static {
         $this->model = $model;
 
         $this->model::saved(function () {
@@ -32,6 +32,7 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
 
         foreach ($existingFiles as $hash => $file) {
             $this->files[$hash] = new File(
+                $this,
                 $hash,
                 $file['name'],
                 $file['size'] ?? '-',
@@ -39,6 +40,8 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
                 $file['remove'] ?? false,
             );
         }
+
+        return $this;
     }
 
     // Arrayable
@@ -64,9 +67,7 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
             throw new InvalidFileStore("The FileStore contained in \"$key\" could not be parsed as JSON");
         }
 
-        // TODO Wrong, has to get here to be made
-        // TODO Switch to Castable format
-        return new static(
+        return $this->setup(
             $model,
             json_decode($value, true),
         );
@@ -101,7 +102,7 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
 
     public function download(string $hash): StreamedResponse
     {
-        return $this->files[$hash]->download($this);
+        return $this->files[$hash]->download();
     }
 
     public function list(bool $showRemoved = false): array
@@ -137,11 +138,11 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
     {
         foreach ($this->files as $hash => $file) {
             if ($file->remove === true) {
-                $file->remove($this);
+                $file->remove();
                 unset($this->files[$hash]);
 
             } elseif ($file->stored === false) {
-                $file->store($this);
+                $file->store();
             }
         }
 
