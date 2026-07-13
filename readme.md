@@ -19,7 +19,7 @@ This library adds a `FileStore` cast which automatically handles these changes:
 2. User removes an existing file; this is marked for removal
 3. User saves the `Model`; this moves temp files to store, and removes marked files from store
 
-The underlying `FileStore` object is saved as an array, which can be stored in a text column.
+The underlying `FileStore` object is saved as a JSON string, which can be stored in a text column.
 
 The `FileStore` class provides all the methods you need to add, remove, and list your files.
 

@@ -18,16 +18,28 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
 
     public Model $model;
 
+    public bool $hasKey = false;
+
     // Setup
+    final public function __construct()
+    {
+        //
+    }
+
     public function setup(
         Model $model,
         array $existingFiles = [],
     ): static {
         $this->model = $model;
 
+        $this->hasKey = $this->model->getKey() !== null;
+
+        $this->model::saving(function () {
+            $this->applyRemoves();
+        });
+
         $this->model::saved(function () {
-            // TODO Keep reserve ID approach to avoid multiple calls to save?
-            $this->save();
+            $this->applyAdds();
         });
 
         foreach ($existingFiles as $hash => $file) {
@@ -73,18 +85,26 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
         );
     }
 
-    public function set(Model $model, string $key, mixed $value, array $attributes): void
+    public function set(Model $model, string $key, mixed $value, array $attributes): string
     {
-        $model->setAttribute(
-            $key,
-            json_encode($this->toArray()),
-        );
+        return match (true) {
+            is_string($value) => $value,
+            is_array($value) => $this->setup($model, $value)->toJson(),
+            $value instanceof FileStore => $value->toJson(),
+            default => throw new InvalidFileStore("The value passed to \"$key\" was not a valid FileStore"),
+        };
     }
 
     // JsonSerializable
     public function jsonSerialize(): array
     {
         return $this->toArray();
+    }
+
+    // Utilities
+    public function toJson(): string
+    {
+        return json_encode($this->toArray());
     }
 
     // Files
@@ -134,19 +154,23 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
         return $this->files[$hash];
     }
 
-    public function save(): void
+    public function applyAdds(): void
+    {
+        foreach ($this->files as $file) {
+            if ($file->stored === false) {
+                $file->store();
+            }
+        }
+    }
+
+    public function applyRemoves(): void
     {
         foreach ($this->files as $hash => $file) {
             if ($file->remove === true) {
                 $file->remove();
                 unset($this->files[$hash]);
-
-            } elseif ($file->stored === false) {
-                $file->store();
             }
         }
-
-        $this->model->save();
     }
 
     // Disks

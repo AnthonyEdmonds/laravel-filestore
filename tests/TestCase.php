@@ -33,4 +33,10 @@ abstract class TestCase extends BaseTestCase
 
         return File::create($this->model->files, $this->upload);
     }
+
+    protected function useDatabase(): void
+    {
+        $this->app->useDatabasePath(__DIR__ . '/Database');
+        $this->runLaravelMigrations();
+    }
 }
