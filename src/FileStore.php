@@ -2,6 +2,7 @@
 
 namespace AnthonyEdmonds\LaravelFileStore;
 
+use Countable;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Support\Arrayable;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use JsonSerializable;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
+abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable, Countable
 {
     /** @var File[] */
     public array $files = [];
@@ -99,6 +100,20 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
     public function jsonSerialize(): array
     {
         return $this->toArray();
+    }
+
+    // Countable
+    public function count(): int
+    {
+        $count = 0;
+
+        foreach ($this->files as $file) {
+            if ($file->remove === false) {
+                ++$count;
+            }
+        }
+
+        return $count;
     }
 
     // Utilities
