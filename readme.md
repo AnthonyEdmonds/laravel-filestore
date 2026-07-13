@@ -94,9 +94,38 @@ composer require anthonyedmonds/laravel-filestore
    }
    ```
 
+## Restricting the FileStore
+
+### FileStoreUpload validation rule
+
+TBD
+
+### Allowed mimes
+
+You can set a list of allowed mime types using the `allowedMimes()` method in ".jpg" format.
+
+This is used in combination with the `FileStoreUpload` rule to restrict files being added to the store.
+
+The `allowedMimesString()` method lets you get the list as a string for display, with or without dots.
+
+### Maximum file size
+
+You can set a maximum allowed upload file size in bytes using the `maxSize()` method.
+
+This is used in combination with the `FileStoreUpload` rule to restrict files being added to the store.
+
+The `maxSizeBytes()`, `maxSizeKilobytes()`, and `maxSizeMegabytes()` methods may be used to display the limit.
+
+### Permissions
+
+You can set a permission name to be used for controlling access to the `FileStore` using the `permission()` method.
+
+No access controls are included in this library, however it could be useful for dynamic calls to `authorise()`.
+
 ## Roadmap
 
 * Self-healing filestore
+* Maximum overall filestore size
 
 ## Help and support
 

@@ -2,6 +2,7 @@
 
 namespace AnthonyEdmonds\LaravelFileStore;
 
+use BackedEnum;
 use Countable;
 use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -120,6 +121,55 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
     public function toJson(): string
     {
         return json_encode($this->toArray());
+    }
+
+    /** @returns BackedEnum|string|null The permission used to control access to the filestore  */
+    public function permission(): BackedEnum|string|null
+    {
+        return null;
+    }
+
+    /** @returns array The types of files allowed in ".jpg" format */
+    public function allowedMimes(): array
+    {
+        return [
+            '*',
+        ];
+    }
+
+    public function allowedMimesString(bool $withDots = true): string
+    {
+        $list = [];
+
+        $allowedMimes = $this->allowedMimes();
+
+        foreach ($allowedMimes as $mime) {
+            $list[] = $withDots === false
+                ? str_replace('.', '', $mime)
+                : $mime;
+        }
+
+        return implode(', ', $list);
+    }
+
+    /** @returns int The maximum filesize allowed in bytes */
+    public function maxSize(): int
+    {
+        return 1000;
+    }
+
+    public function maxSizeBytes(): string
+    {
+        return $this->maxSize() . ' B';
+    }
+
+    public function maxSizeKilobytes(): string
+    {
+        return round($this->maxSize() / 1000, 2) . ' kB';
+    }
+    public function maxSizeMegabytes(): string
+    {
+        return round($this->maxSize() / 1000 / 1000, 2) . ' mB';
     }
 
     // Files

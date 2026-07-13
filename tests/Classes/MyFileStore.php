@@ -25,4 +25,18 @@ class MyFileStore extends FileStore
     {
         return "https://remove/$hash";
     }
+
+    public function allowedMimes(): array
+    {
+        return [
+            '.xlsx',
+            '.png',
+            '.bat',
+        ];
+    }
+
+    public function maxSize(): int
+    {
+        return 1234;
+    }
 }
