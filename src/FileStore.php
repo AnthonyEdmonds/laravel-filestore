@@ -25,17 +25,23 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
 
     public bool $hasKey = false;
 
+    public string $property = '';
+
     // Setup
-    final public function __construct()
-    {
+    final public function __construct(
+        public string $storeDiskName = 'store',
+        public string $tempDiskName = 'temp',
+    ) {
         //
     }
 
     public function setup(
         Model $model,
+        string $property,
         array $existingFiles = [],
     ): static {
         $this->model = $model;
+        $this->property = $property;
 
         $this->hasKey = $this->model->getKey() !== null;
 
@@ -86,6 +92,7 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
 
         return $this->setup(
             $model,
+            $key,
             json_decode($value, true),
         );
     }
@@ -94,7 +101,7 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
     {
         return match (true) {
             is_string($value) => $value,
-            is_array($value) => $this->setup($model, $value)->toJson(),
+            is_array($value) => $this->setup($model, $key, $value)->toJson(),
             $value instanceof FileStore => $value->toJson(),
             default => throw new InvalidFileStore("The value passed to \"$key\" was not a valid FileStore"),
         };
@@ -238,8 +245,10 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
         return $this->files[$hash]->download();
     }
 
-    public function list(bool $showRemoved = false): array
-    {
+    public function list(
+        array $routeParameters = [],
+        bool $showRemoved = false,
+    ): array {
         $list = [];
 
         foreach ($this->files as $hash => $file) {
@@ -251,9 +260,9 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
             }
 
             $list[] = [
-                'download_url' => $this->downloadRoute($hash),
+                'download_url' => $this->downloadRoute($hash, $routeParameters),
                 'name' => $file->name,
-                'remove_url' => $this->removeRoute($hash),
+                'remove_url' => $this->removeRoute($hash, $routeParameters),
                 'size' => $file->size,
             ];
         }
@@ -287,26 +296,20 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
     }
 
     // Disks
-    /** The name of the filesystem to use for permanently storing files */
-    abstract public function storeDiskName(): string;
-
-    /** The name of the filesystem to use for temporarily storing files */
-    abstract public function tempDiskName(): string;
-
     public function storeDisk(): Filesystem
     {
-        return Storage::disk($this->storeDiskName());
+        return Storage::disk($this->storeDiskName);
     }
 
     public function tempDisk(): Filesystem
     {
-        return Storage::disk($this->tempDiskName());
+        return Storage::disk($this->tempDiskName);
     }
 
     // Routing
     /** The `route()` users can download files using */
-    abstract public function downloadRoute(string $hash): string;
+    abstract public function downloadRoute(string $hash, array $routeParameters = []): string;
 
     /** The `route()` users can remove files using */
-    abstract public function removeRoute(string $hash): string;
+    abstract public function removeRoute(string $hash, array $routeParameters = []): string;
 }

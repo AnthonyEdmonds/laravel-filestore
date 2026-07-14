@@ -44,13 +44,13 @@ composer require anthonyedmonds/laravel-filestore
        ...
    }
    ```
-2. Add the `FileStore` to your model
+2. Add the `FileStore` to your model `$casts`, specifying the disks to use for storing files permanently and temporarily
    ```php
    class MyModel extends Model
    {
        ...
        protected $casts = [
-           'file_column' => MyFileStore::class,
+           'file_column' => MyFileStore::class . ':store,temp',
        ];
        ...
    }
