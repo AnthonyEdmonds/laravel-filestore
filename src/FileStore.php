@@ -9,7 +9,10 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Number;
+use Illuminate\Support\Str;
 use JsonSerializable;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -18,7 +21,7 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
     /** @var File[] */
     public array $files = [];
 
-    public Model $model;
+    public ?Model $model = null;
 
     public bool $hasKey = false;
 
@@ -103,6 +106,11 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
         return $this->toArray();
     }
 
+    public function toJson(): string
+    {
+        return json_encode($this->toArray());
+    }
+
     // Countable
     public function count(): int
     {
@@ -117,59 +125,99 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
         return $count;
     }
 
-    // Utilities
-    public function toJson(): string
+    public function countString(): string
     {
-        return json_encode($this->toArray());
+        return Str::plural('file', $this->count(), true);
     }
 
+    // Max files
+    /** @returns int The maximum number of files allowed in this FileStore */
+    public function maxFiles(): int
+    {
+        return 0;
+    }
+
+    public function maxFilesString(): string
+    {
+        return Str::plural('file', $this->maxFiles(), true);
+    }
+
+    // Permissions
     /** @returns BackedEnum|string|null The permission used to control access to the filestore  */
     public function permission(): BackedEnum|string|null
     {
         return null;
     }
 
+    // File types
     /** @returns array The types of files allowed in ".jpg" format */
     public function allowedMimes(): array
     {
-        return [
-            '*',
-        ];
+        return [];
     }
 
-    public function allowedMimesString(bool $withDots = true): string
+    public function allowedMimesFormatted(): array
     {
-        $list = [];
-
+        $mimes = [];
         $allowedMimes = $this->allowedMimes();
 
         foreach ($allowedMimes as $mime) {
-            $list[] = $withDots === false
-                ? str_replace('.', '', $mime)
-                : $mime;
+            $mimes[] = str_replace('.', '', $mime);
         }
 
-        return implode(', ', $list);
+        return $mimes;
     }
 
+    public function allowedMimesString(): string
+    {
+        $allowedMimes = $this->allowedMimes();
+
+        $finalGlue = count($allowedMimes) > 2
+            ? ', or '
+            : ' or ';
+
+        return Arr::join($allowedMimes, ', ', $finalGlue);
+    }
+
+    // File size
     /** @returns int The maximum filesize allowed in bytes */
-    public function maxSize(): int
+    public function maxFileSize(): int
     {
-        return 1000;
+        return 0;
     }
 
-    public function maxSizeBytes(): string
+    public function maxFileSizeString(): string
     {
-        return $this->maxSize() . ' B';
+        return Number::fileSize($this->maxFileSize(), 2);
     }
 
-    public function maxSizeKilobytes(): string
+    // Store size
+    /** @returns int The maximum number of files allowed in this FileStore */
+    public function currentStoreSize(): int
     {
-        return round($this->maxSize() / 1000, 2) . ' kB';
+        $size = 0;
+
+        foreach ($this->files as $file) {
+            $size += $file->realSize();
+        }
+
+        return $size;
     }
-    public function maxSizeMegabytes(): string
+
+    public function currentStoreSizeString(): string
     {
-        return round($this->maxSize() / 1000 / 1000, 2) . ' mB';
+        return Number::fileSize($this->currentStoreSize(), 2);
+    }
+
+    /** @returns int The maximum overall FileStore filesize allowed in bytes */
+    public function maxStoreSize(): int
+    {
+        return 0;
+    }
+
+    public function maxStoreSizeString(): string
+    {
+        return Number::fileSize($this->maxStoreSize(), 2);
     }
 
     // Files

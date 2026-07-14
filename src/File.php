@@ -5,6 +5,7 @@ namespace AnthonyEdmonds\LaravelFileStore;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File as LaravelFile;
+use Illuminate\Support\Number;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class File implements Arrayable
@@ -39,11 +40,18 @@ class File implements Arrayable
 
     public static function size(int $size): string
     {
-        return match (true) {
-            $size > 99999 => round($size / 1000 / 1000, 2) . ' mB',
-            $size > 9999 => round($size / 1000, 2) . ' kB',
-            default => $size . ' B',
-        };
+        return Number::fileSize($size, 2);
+    }
+
+    public function realSize(): int
+    {
+        return $this->stored === true
+            ? $this->fileStore->storeDisk()->size(
+                $this->path(),
+            )
+            : $this->fileStore->tempDisk()->size(
+                $this->hash,
+            );
     }
 
     // Arrayable

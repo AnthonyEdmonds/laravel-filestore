@@ -4,12 +4,15 @@ namespace AnthonyEdmonds\LaravelFileStore\Tests;
 
 use AnthonyEdmonds\LaravelFileStore\File;
 use AnthonyEdmonds\LaravelFileStore\Tests\Classes\MyModel;
+use AnthonyEdmonds\LaravelTestingTraits\AssertsValidationRules;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
+    use AssertsValidationRules;
+
     protected MyModel $model;
 
     protected UploadedFile $upload;

@@ -28,15 +28,15 @@ class SizeTest extends TestCase
         return [
             [
                 'file' => 'blank.txt',
-                'expected' => '5 B',
+                'expected' => '5.00 B',
             ],
             [
                 'file' => 'snowy.jpg',
-                'expected' => '57.37 kB',
+                'expected' => '56.02 KB',
             ],
             [
                 'file' => 'ripley.jpg',
-                'expected' => '1.08 mB',
+                'expected' => '1.03 MB',
             ],
         ];
     }
