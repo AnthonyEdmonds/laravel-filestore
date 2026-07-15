@@ -14,9 +14,10 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Number;
 use Illuminate\Support\Str;
 use JsonSerializable;
+use Stringable;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable, Countable
+abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable, Countable, Stringable
 {
     /** @var File[] */
     public array $files = [];
@@ -65,6 +66,12 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
         }
 
         return $this;
+    }
+
+    // Stringable
+    public function __toString(): string
+    {
+        return $this->toJson();
     }
 
     // Arrayable
