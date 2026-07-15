@@ -94,9 +94,79 @@ composer require anthonyedmonds/laravel-filestore
    }
    ```
 
+## Restricting the FileStore
+
+### AllowedInFileStore validation rule
+
+You can validate uploads destined for a `FileStore` using the `AllowedInFileStore` validation rule.
+
+```php
+public function rules(): array
+{
+   return [
+      'my-file' => [
+         'required',
+         new AllowedInFileStore($this->model->my_filestore),
+         // OR, if not using maxStoreSize() or maxFiles()
+         new AllowedInFileStore(MyFileStore::class),
+      ],
+   ];
+}
+```
+
+It validates the following criteria:
+
+* Is a file
+* Is an allowed mime type
+* Is below the file size limit
+
+If provided with an instance of a `FileStore` from a `Model`, it will also check:
+
+* Would not cause the `FileStore` to exceed its file count limit
+* Would not cause the `FileStore` to exceed its store size limit
+
+### Allowed mimes
+
+You can set a list of allowed mime types using the `allowedMimes()` method in ".jpg" format.
+
+This is used in combination with the `AllowedInFileStore` rule to restrict files being added to the store.
+
+The `allowedMimesString()` method lets you get the list as a string for display, with or without dots.
+
+### Maximum file size
+
+You can set a maximum allowed upload file size in bytes using the `maxFileSize()` method.
+
+This is used in combination with the `AllowedInFileStore` rule to restrict files being added to the store.
+
+The `maxFileSizeString()` method can be used to display the limit.
+
+### Maximum store size
+
+You can set a maximum allowed `FileStore` size in bytes using the `maxStoreSize()` method.
+
+This is used in combination with the `AllowedInFileStore` rule to restrict adding a file which would put the `FileStore` over the limit.
+
+The `maxStoreSizeString()` and `currentStoreSizeString()` methods may be used to display the limit.
+
+### Max files
+
+You can set a maximum allowed number of files in the `FileStore` using the `maxFiles()` method.
+
+This is used in combination with the `AllowedInFileStore` rule to restrict adding too many files to a `FileStore`.
+
+The `maxFilesString()` and `countString()` methods can be used to display the limit.
+
+### Permissions
+
+You can set a permission name to be used for controlling access to the `FileStore` using the `permission()` method.
+
+No access controls are included in this library, however it could be useful for dynamic calls to `authorise()`.
+
 ## Roadmap
 
 * Self-healing filestore
+* Maximum overall filestore size
 
 ## Help and support
 

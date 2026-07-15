@@ -36,7 +36,7 @@ class CreateTest extends TestCase
         );
 
         $this->assertEquals(
-            '57.37 kB',
+            '56.02 KB',
             $this->file->size,
         );
 
