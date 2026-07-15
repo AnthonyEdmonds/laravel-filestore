@@ -35,7 +35,7 @@ class CountStringTest extends TestCase
         $this->model = new MyModel();
 
         $this->fileStore = new MyFileStore();
-        $this->fileStore->setup($this->model, $this->files);
+        $this->fileStore->setup($this->model, 'files', $this->files);
     }
 
     public function test(): void

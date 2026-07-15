@@ -44,6 +44,11 @@ class SetupTest extends TestCase
         );
 
         $this->assertEquals(
+            'files',
+            $this->fileStore->property,
+        );
+
+        $this->assertEquals(
             new File(
                 $this->fileStore,
                 'my-hash',

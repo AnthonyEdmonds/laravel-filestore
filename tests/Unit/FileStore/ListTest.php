@@ -68,7 +68,7 @@ class ListTest extends TestCase
                     'size' => '56.02 KB',
                 ],
             ],
-            $this->fileStore->list(true),
+            $this->fileStore->list([], true),
         );
     }
 }

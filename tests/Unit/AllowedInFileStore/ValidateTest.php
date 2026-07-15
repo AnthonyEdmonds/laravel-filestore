@@ -26,7 +26,7 @@ class ValidateTest extends TestCase
         $this->model = new MyModel();
 
         $this->fileStore = new ValidatedFileStore();
-        $this->fileStore->setup($this->model);
+        $this->fileStore->setup($this->model, 'files');
 
         $this->uploadedFile = new UploadedFile(
             __DIR__ . '/../../Files/kerry.png',

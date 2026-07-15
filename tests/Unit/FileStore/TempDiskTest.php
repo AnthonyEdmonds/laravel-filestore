@@ -21,7 +21,7 @@ class TempDiskTest extends TestCase
     public function test(): void
     {
         $this->assertEquals(
-            Storage::disk($this->fileStore->tempDiskName()),
+            Storage::disk('temp'),
             $this->fileStore->tempDisk(),
         );
     }
