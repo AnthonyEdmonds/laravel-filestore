@@ -50,8 +50,9 @@ abstract class FileStore implements Arrayable, CastsAttributes, JsonSerializable
             $this->applyRemoves();
         });
 
-        $this->model::saved(function () {
+        $this->model::saved(function (Model $model) {
             $this->applyAdds();
+            $model->saveQuietly();
         });
 
         foreach ($existingFiles as $hash => $file) {
